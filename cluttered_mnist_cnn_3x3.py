@@ -64,7 +64,7 @@ h_pool2 = max_pool_2x2(h_conv2)
 W_fc1 = weight_variable([3 * 3 * 16, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool2_flat = tf.reshape(h_pool2, [-1, 3 * 3 * 16])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 2 * 2 * 16])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
 #Dropout
@@ -77,7 +77,7 @@ b_fc2 = bias_variable([10])
 
 y_conv=tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(y * tf.log(y_conv), reduction_indices=[1]))
+cross_entropy = tf.reduce_mean(-tf.reduce_sum(y * tf.log(tf.clip_by_value(y_conv,1e-10,1.0)), reduction_indices=[1]))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -94,7 +94,7 @@ train_size = 10000
 indices = np.linspace(0, 10000 - 1, iter_per_epoch)
 indices = indices.astype('int')
 
-f = open('cluttered_mnist_cnn.dat','w')
+f = open('./results/cluttered_mnist_cnn_3x3.dat','w')
 
 for epoch_i in range(n_epochs):
   for iter_i in range(iter_per_epoch - 1):

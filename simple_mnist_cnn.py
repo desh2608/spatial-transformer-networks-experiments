@@ -29,15 +29,15 @@ def bias_variable(shape):
   return tf.Variable(initial)
 
 def conv2d(x, W):
-  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+  return tf.nn.conv2d(x, W, strides=[1, 2, 2, 1], padding='SAME')
 
 def max_pool_2x2(x):
   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
 
 #First convolutional layer
-W_conv1 = weight_variable([5, 5, 1, 32])
-b_conv1 = bias_variable([32])
+W_conv1 = weight_variable([3, 3, 1, 16])
+b_conv1 = bias_variable([16])
 
 x_image = tf.reshape(x, [-1,28,28,1])
 
@@ -45,17 +45,17 @@ h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
 #Second convolutional layer
-W_conv2 = weight_variable([5, 5, 32, 64])
-b_conv2 = bias_variable([64])
+W_conv2 = weight_variable([3, 3, 16, 16])
+b_conv2 = bias_variable([16])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)
 
 #Densely connected layer
-W_fc1 = weight_variable([7 * 7 * 64, 1024])
+W_fc1 = weight_variable([2 * 2 * 16, 1024])
 b_fc1 = bias_variable([1024])
 
-h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
+h_pool2_flat = tf.reshape(h_pool2, [-1, 2*2*16])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
 
 #Dropout
@@ -76,7 +76,7 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 sess = tf.InteractiveSession()
 sess.run(tf.initialize_all_variables())
 
-f = open('./results/simple_mnist_cnn.dat','w')
+f = open('./results/simple_mnist_cnn_3x3.dat','w')
 
 for i in range(50000):
   batch = mnist.train.next_batch(101)
